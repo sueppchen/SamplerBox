@@ -1,4 +1,4 @@
-#  SamplerBox
+#  SamplerBox RX!!
 #
 #  author:          Joseph Ernest (twitter: @JosephErnest, mail: contact@samplerbox.org)
 #  contributor:     Alex MacRae (alex.finlay.macrae@gmail.com)
@@ -9,6 +9,7 @@
 #
 
 # TODO: if we're compiling a dist (Windows/Mac), bundled files such as config.ini can't be found, ie relative paths are affected
+# --> Pilink einpflegen!
 
 # import os, sys
 # if 'Python' in  os.path.dirname(sys.executable):
@@ -20,6 +21,8 @@
 # IMPORT
 # MODULES
 #########################################
+
+#samplerbox.original
 from os.path import ismount
 from os.path import isfile
 from os import system
@@ -33,7 +36,11 @@ import threading
 import rtmidi2
 # from filters import FilterType, Filter, FilterChain
 # from utility import byteToPCM, floatToPCM, pcmToFloat, sosfreqz
+
+print 'modules other'
+
 from modules import globalvars as gv
+print 'import ok: gv'
 from modules import displayer
 from modules import audiocontrols
 from modules import buttons
@@ -44,6 +51,15 @@ from modules import sound
 from modules import midimaps
 from modules import midicallback
 from modules import midiserial
+
+print 'import done'
+
+#pilink
+import sys
+import os
+sys.path.append('/root/SamplerBox/pilink_var')
+import pilink
+
 
 ###########
 # Fix USB #
@@ -191,15 +207,29 @@ first_loop = True
 time.sleep(0.5)
 
 try:
+
+    def deamonize(callable) :
+        t = threading.Thread(target=callable)
+        t.daemon = True
+        t.start()
+    
     def midi_devices_loop():
         global prev_ports, first_loop
+        
+        #main loop
         while True:
+    
             no_playing_sounds = False
             for channel in xrange(16):
                 if not gv.playingnotes[channel + 1]:
                     no_playing_sounds = True
+    
             if no_playing_sounds:  # only check when there are no sounds
+
+                #liste mit allen Midi-In-Ports
                 curr_ports = rtmidi2.get_in_ports()
+                
+                #mit letzter Liste vergleichen, bei Abweichung einlesen
                 if (len(prev_ports) != len(curr_ports)):
                     print '\n==== START GETTING MIDI DEVICES ===='
                     midi_in.close_ports()
@@ -226,6 +256,7 @@ try:
         LoadingThread = threading.Thread(target=midi_devices_loop)
         LoadingThread.daemon = True
         LoadingThread.start()
+#        startup()
 
         #########################
         # START GUI / MAIN LOOP #
@@ -235,7 +266,9 @@ try:
             gv.gui.start_gui_loop()  # this is the main loop
 
     else:
+        deamonize(pilink.startup)
         midi_devices_loop()  # this is the main loop
+
 
 except KeyboardInterrupt:
     print "\nStopped by CTRL-C\n"
