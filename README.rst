@@ -24,6 +24,8 @@ Documentation
 
 More in-depth documentation can be found `here <http://samplerbox.readthedocs.io/>`_.
 
+added i2c user-interface, multichannel-sampling, midi over OSC support...
+
 Contributors
 ------------
 
