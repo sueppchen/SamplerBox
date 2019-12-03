@@ -1,14 +1,8 @@
 from wifi import Cell, Scheme
 import os
 import subprocess
-import shlex
 import string
 import time
-import globalvars as gv
-
-
-# TODO: Option to show the IP address on the LCD
-
 
 class Wifi():
     def __init__(self):
@@ -45,13 +39,8 @@ class Wifi():
         # using wpa_config save the ssid to /etc/wpa_supplicant/wpa_supplicant.conf
         # -f forces overwrite of entry if it exists
         self.readwrite()
-
-        if psk:
-            wpa_config_str = ['wpa_config', 'add', '-f', ssid, psk]
-        else:
-            wpa_config_str = ['wpa_config', 'add', '-fo', ssid, psk]  # -o = open, for open network
-
-        subprocess.call(['wpa_config', 'migrate'])  # migrate any networks that may have been manually inputted into wpa_supplicant.conf to wpa_config
+        wpa_config_str = ['wpa_config', 'add', '-f', ssid, psk]
+        subprocess.call(['wpa_config','migrate'])  # migrate any networks that may have been manually inputted into wpa_supplicant.conf to wpa_config
         subprocess.call(wpa_config_str)  # add to wpa_config (but not to wpa_supplicant.conf yet)
         subprocess.call(['wpa_config', 'make'])  # write to wpa_supplicant.conf
         time.sleep(0.5)
@@ -70,11 +59,13 @@ class Wifi():
         else:
             return False
 
-            # subprocess.call('wpa_config show \"' + ssid + '\"')
+        # subprocess.call('wpa_config show \"' + ssid + '\"')
+
 
     def enable(self, ssid):
         subprocess.call(['ifup', 'wlan0'])
         subprocess.call(['dhcpcd', 'wlan0'])
+
 
 
 class SSIDSelector(Wifi):
@@ -86,6 +77,7 @@ class SSIDSelector(Wifi):
         self.ssid_pos = 0
         self.selected_ssid_name = None
 
+
     def get_selected_ssid_name(self):
 
         ssid_name = self.ssids[self.ssid_pos]
@@ -94,7 +86,7 @@ class SSIDSelector(Wifi):
 
     def next_ssid(self):
 
-        if self.ssid_pos < len(self.ssids) - 1:
+        if self.ssid_pos < len(self.ssids):
 
             self.ssid_pos += 1
 
@@ -125,38 +117,33 @@ class SSIDSelector(Wifi):
 
 
 class PasswordInputer(SSIDSelector):
+
     def __init__(self, ssid):
 
         # Wifi.__init__(self)
         # SSIDSelector.__init__(self)
         self.selected_ssid = ssid
         self.strings = list(' ' + string.letters + string.digits + string.punctuation)
-        self.strings.insert(0, ' None ')
         self.strings.insert(0, 'SAVE')
         # string.printable # digits + letters + punctuation + whitespace. ie 0123...abcd...ABCD...!"#$%&\'...\t\n\r\x0b
         self.strings_pos = 0
         self.psk = ''
-        self.page = 0
 
     def enter(self):
 
-        if self.strings_pos > 1:
+        if self.strings_pos > 0:
 
             self.psk += self.get_current_char()
 
-            self.strings_pos = 0  # reset position in strings var
+            self.strings_pos = 0 # reset position in strings var
 
             return self.psk
 
-        elif self.strings_pos == 1:  # No password (None)
-
-            self.save(ssid=self.selected_ssid, psk=None)
-
-            return 'Saving open network: SSID="%s" (no password)' % self.selected_ssid
-
-        elif self.strings_pos == 0 and self.psk != None:  # SAVE
+        elif self.strings_pos == 0 and self.psk != None:
 
             if len(self.psk) >= 8 and len(self.psk) < 64:
+
+                print self.selected_ssid, self.psk,'<<<<'
 
                 self.save(ssid=self.selected_ssid, psk=self.psk)
 
@@ -166,53 +153,30 @@ class PasswordInputer(SSIDSelector):
 
                 print 'Password is not long enough. Must be 8...63 characters'
 
+
+
     def get_current_char(self):
 
         return self.strings[self.strings_pos]
 
+
     def get_next_char(self):
 
-        if self.strings_pos > ((gv.LCD_COLS * self.page) - 11 + gv.LCD_COLS):  # subtract 11 because 'SAVE' and 'None' are like 2 characters
-            self.page += 1
-
         if self.strings_pos < len(self.strings):
+
             self.strings_pos += 1
 
             return self.strings[self.strings_pos]
 
+
     def get_prev_char(self):
 
-        if self.strings_pos < ((gv.LCD_COLS * self.page) - 11 + gv.LCD_COLS):  # subtract 11 because 'SAVE' and 'None' are like 2 characters
-            self.page -= 1
-
         if self.strings_pos > 0:
+
             self.strings_pos -= 1
 
             return self.strings[self.strings_pos]
 
-
-class NetworkInfo:
-
-    def get_ip_address(self, interface):
-
-        # Not a simple subprocess.call due to the need for a PIPE in the command
-        # https://docs.python.org/2/library/subprocess.html#replacing-shell-pipeline
-        command_line_1 = "ip addr show " + interface
-        args1 = shlex.split(command_line_1)
-        command_line_2 = "grep -Po 'inet \K[\d.]+'"
-        args2 = shlex.split(command_line_2)
-
-        command_line_1 = subprocess.Popen(args1, stdout=subprocess.PIPE)
-        command_line_2 = subprocess.Popen(args2, stdin=command_line_1.stdout, stdout=subprocess.PIPE)
-        command_line_1.stdout.close()
-
-        ip_address = command_line_2.communicate()[0]
-        ip_address = ip_address.rstrip()
-
-        if ip_address == '':
-            ip_address = 'NOT CONNECTED'
-
-        return str(ip_address)
 
 
 if __name__ == '__main__':
@@ -224,7 +188,7 @@ if __name__ == '__main__':
 
     ss = SSIDSelector(w.ssids)
 
-    print 'init SSID:', ss.get_selected_ssid_name()
+    print 'init SSID:',ss.get_selected_ssid_name()
 
     ss.next_ssid()
     ss.next_ssid()

@@ -41,9 +41,10 @@ class Displayer:
             if gv.ls.memory_limit_reached == False:
                 if gv.ls.all_presets_loaded == False:
                     if gv.ls.loading_paused == True:
+                        # tray.append('P') # P for Paused loading
                         tray.append(unichr(2)) # Pause custom character for Paused loading
                     else:
-                        tray.append(unichr(6)) # Loading custom hour glass character
+                        tray.append('S') # S for Samples loading
 
         if len(gv.voices) > 1:
             voice_blocks = list(unichr(5) * len(gv.voices))  # fill with custom block chars
@@ -70,6 +71,7 @@ class Displayer:
             ###################
             # 7 SEGMENT DISPLAY
             ###################
+#            print ('debug: ' + gv.USE_I2C_7SEGMENTDISPLAY)
             if gv.USE_I2C_7SEGMENTDISPLAY and gv.IS_DEBIAN:
                 import i2c7segment
                 if 'preset' in changed_var:
@@ -90,7 +92,7 @@ class Displayer:
 
             if gv.SYSTEM_MODE == 1:
 
-                if gv.USE_HD44780_16x2_LCD or gv.USE_HD44780_20x4_LCD:
+                if gv.USE_HD44780_16x2_LCD or gv.USE_HD44780_20x4_LCD or gv.USE_I2C_16X2DISPLAY:
 
                     if is_error:
                         self.LCD_SYS.display(changed_var[0], line=line, is_priority=True, timeout_custom=timeout)
@@ -140,20 +142,14 @@ class Displayer:
                             self.LCD_SYS.display(vol_line, line=1 + n, is_priority=False, timeout_custom=timeout)
                             self.LCD_SYS.display((unichr(1) * i), line=2 + n, is_priority=False, timeout_custom=timeout)
                         elif 'loading' in changed_var:
-                            preset_name = gv.SETLIST_LIST[gv.samples_indices[gv.preset]]
-                            preset_num_name = str(gv.preset - gv.PRESET_BASE + 1) + ' ' + preset_name
-                            preset_line_1 = preset_num_name
-                            loading_line = 'LOADING%s'.ljust(gv.LCD_COLS, ' ') % (unichr(1) * int(gv.percent_loaded * ((gv.LCD_COLS - 7) / 100.0) + 1))
-                            self.LCD_SYS.display(preset_line_1, line=1, is_priority=True, timeout_custom=timeout)
-                            self.LCD_SYS.display(loading_line, line=2 + n, is_priority=False, timeout_custom=timeout)
+                            loading_line = 'LOADING %s%%'.center(gv.LCD_COLS, ' ') % str(int(gv.percent_loaded))
+                            self.LCD_SYS.display(loading_line, line=1 + n, is_priority=False, timeout_custom=timeout)
+                            self.LCD_SYS.display((unichr(1) * int(gv.percent_loaded * (gv.LCD_COLS / 100.0) + 1)), line=2 + n, is_priority=False, timeout_custom=timeout)
                         elif 'effect' in changed_var:
                             effect_name = changed_var[1].upper()
                             effect_line = (effect_name+' %s%%').center(gv.LCD_COLS, ' ') % str(int(gv.percent_effect))
                             self.LCD_SYS.display(effect_line, line=1 + n, is_priority=False, timeout_custom=timeout)
                             self.LCD_SYS.display(unichr(1) * int(gv.percent_effect * (gv.LCD_COLS / 100.0) + 1), line=2 + n, is_priority=False, timeout_custom=timeout)
-                        elif 'freeingmemory' in changed_var:
-                            self.LCD_SYS.display(('FREEING MEMORY..').center(gv.LCD_COLS, ' '),line=2+n, is_priority=False, timeout_custom=timeout)
-
 
                     if self.menu_mode == self.DISP_UTILS_MODE:
                         if 'util' in changed_var:
@@ -194,7 +190,7 @@ class Displayer:
             # Currently the 20x4 module displays the same messages as the 16x2 - ie only on the first 2 lines
 
             elif gv.SYSTEM_MODE == 2:
-                if gv.USE_HD44780_16x2_LCD or gv.USE_HD44780_20x4_LCD:
+                if gv.USE_HD44780_16x2_LCD or gv.USE_HD44780_20x4_LCD or gv.USE_I2C_16X2DISPLAY:
                     if 'loading' in changed_var:
                         pass
                         # self.LCD_SYS.display(unichr(1) * int(gv.percent_loaded * (gv.LCD_COLS / 100.0) + 1))

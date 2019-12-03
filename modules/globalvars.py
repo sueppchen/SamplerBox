@@ -46,7 +46,6 @@ MAX_POLYPHONY = int(cp.get_option_by_name('MAX_POLYPHONY'))
 MIDI_CHANNEL = int(cp.get_option_by_name('MIDI_CHANNEL'))
 BUFFERSIZE = int(cp.get_option_by_name('BUFFERSIZE'))
 SAMPLERATE = int(cp.get_option_by_name('SAMPLERATE'))
-LATENCY = str(cp.get_option_by_name('LATENCY')).lower()
 BOXRELEASE = int(cp.get_option_by_name('BOXRELEASE'))
 RAM_LIMIT_PERCENTAGE = int(cp.get_option_by_name('RAM_LIMIT_PERCENTAGE'))
 # global_volume = int(cp.get_option_by_name('GLOBAL_VOLUME'))
@@ -72,12 +71,18 @@ else:
 USE_BUTTONS = cp.get_option_by_name('USE_BUTTONS')
 USE_HD44780_16x2_LCD = cp.get_option_by_name('USE_HD44780_16x2_LCD')
 USE_HD44780_20x4_LCD = cp.get_option_by_name('USE_HD44780_20x4_LCD')
+#i2c
+USE_I2C_16X2DISPLAY = cp.get_option_by_name('USE_I2C_16X2DISPLAY')				     # Set to True to use a 16x2 display via I2C
+I2C_16x2DISPLAY_ADDR = int(cp.get_option_by_name('I2C_16x2DISPLAY_ADDR'))		     # 0x3f - I2C device address
+USE_I2C_BUTTONS = cp.get_option_by_name('USE_I2C_BUTTONS')				     # Set to True to use a 16x2 display via I2C
+I2C_BUTTONS_ADDR = int(cp.get_option_by_name('I2C_BUTTONS_ADDR'))		     # 0x20 - I2C device address
+#I2C_16x2DISPLAY_LCD_WIDTH = int(cp.get_option_by_name('I2C_16x2DISPLAY_LCD_WIDTH'))  # 16 - Maximum characters per line
+#/i2c
 USE_FREEVERB = cp.get_option_by_name('USE_FREEVERB')
 USE_TONECONTROL = cp.get_option_by_name('USE_TONECONTROL')
 USE_I2C_7SEGMENTDISPLAY = cp.get_option_by_name('USE_I2C_7SEGMENTDISPLAY')
 USE_GUI = cp.get_option_by_name('USE_GUI')
 INVERT_SUSTAIN = cp.get_option_by_name('INVERT_SUSTAIN')
-VELOCITY_CURVE = int(cp.get_option_by_name('VELOCITY_CURVE'))
 PRINT_LCD_MESSAGES = cp.get_option_by_name('PRINT_LCD_MESSAGES')
 PRINT_MIDI_MESSAGES = cp.get_option_by_name('PRINT_MIDI_MESSAGES')
 AUDIO_DEVICE_ID = int(cp.get_option_by_name('AUDIO_DEVICE_ID'))
@@ -222,6 +227,9 @@ if USE_HD44780_16x2_LCD:
 elif USE_HD44780_20x4_LCD:
     LCD_COLS = 20
     LCD_ROWS = 4
+elif USE_I2C_16X2DISPLAY:
+    LCD_COLS = 16
+    LCD_ROWS = 2
 else:
     LCD_COLS = 50
     LCD_ROWS = 4
@@ -265,7 +273,9 @@ velocity_mode = VELOCITY_MODE_DEFAULT
 # global_volume used in favour
 # volume_alsa = 87  # the startup (alsa=output) volume (0-100), change with function buttons
 volumeCC = 1.0  # assumed value of the volumeknob controller before first use, max=1.0 (the knob can only decrease).
+#print ('debug:' + str(PRESET_BASE))
 preset = 0 + PRESET_BASE  # the default patch to load
+#print ('debug:' + str(preset))
 voices = []
 currvoice = 1
 midi_mute = False

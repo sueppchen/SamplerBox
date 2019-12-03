@@ -15,10 +15,7 @@ import menudict
 from textscroller import TextScroller
 from modules import definitionparser
 import configdefaultsdict as cdd
-import systemfunctions as sysfunc
 import network
-from velocitycurves import VelocityCurves
-
 
 # ______________________________________________________________________________
 
@@ -32,7 +29,6 @@ class Navigator:
     text_scroller = None
 
     def __init__(self, state_init):
-        self.nav_pressed = False
         Navigator.state = state_init
         Navigator.text_scroller = TextScroller()
         self.load_state(self.state)
@@ -73,7 +69,6 @@ class PresetNav(Navigator):
 
     def right(self):
         gv.preset += 1
-        gv.nav.nav_pressed = True
         gv.displayer.LCD_SYS.reset_after_timeout()
         gv.currvoice = 1
         if gv.preset >= len(gv.samples_indices):
@@ -84,7 +79,6 @@ class PresetNav(Navigator):
 
     def left(self):
         gv.preset -= 1
-        gv.nav.nav_pressed = True
         gv.displayer.LCD_SYS.reset_after_timeout()
         gv.currvoice = 1
         if gv.preset < 0:
@@ -637,37 +631,37 @@ class MidiChannelConfig(Navigator):
 
 # ______________________________________________________________________________
 
-class LatencyConfig(Navigator):
+class BufferSizeConfig(Navigator):
     def __init__(self):
         self.text_scroller.stop()
-        self.LATENCY = gv.LATENCY
-        self.options = cdd.configdefaults.get('LATENCY').get('options')
+        self.BUFFERSIZE = gv.BUFFERSIZE
+        self.options = cdd.configdefaults.get('BUFFERSIZE').get('options')
 
-        self.i = cdd.configdefaults.get('LATENCY').get('default')
+        self.i = cdd.configdefaults.get('BUFFERSIZE').get('default')
         for x in self.options:
-            if int(x) == int(self.LATENCY):
+            if int(x) == int(self.BUFFERSIZE):
                 self.i = self.options.index(x)
         self.display()
 
     def display(self):
-        gv.displayer.disp_change('LATENCY'.center(gv.LCD_COLS, ' '), line=1, timeout=0)
-        gv.displayer.disp_change(str(self.LATENCY).center(gv.LCD_COLS, ' '), line=2, timeout=0)
+        gv.displayer.disp_change('BUFFER SIZE'.center(gv.LCD_COLS, ' '), line=1, timeout=0)
+        gv.displayer.disp_change(str(self.BUFFERSIZE).center(gv.LCD_COLS, ' '), line=2, timeout=0)
 
     def left(self):
         if self.i > 0:
             self.i -= 1
-        self.LATENCY = max(int(self.options[self.i]), int(self.options[0]))
+        self.BUFFERSIZE = max(int(self.options[self.i]), int(self.options[0]))
         self.display()
 
     def right(self):
         if self.i < len(self.options) - 1:
             self.i += 1
-        self.LATENCY = min(int(self.options[self.i]), int(self.options[-1]))
+        self.BUFFERSIZE = min(int(self.options[self.i]), int(self.options[-1]))
         self.display()
 
     def enter(self):
-        gv.cp.update_config('SAMPLERBOX CONFIG', 'LATENCY', str(self.LATENCY))
-        gv.LATENCY = self.LATENCY
+        gv.cp.update_config('SAMPLERBOX CONFIG', 'BUFFERSIZE', str(self.BUFFERSIZE))
+        gv.BUFFERSIZE = self.BUFFERSIZE
         gv.sound.close_stream()
         gv.sound.start_sounddevice_stream()
         self.load_state(MenuNav)
@@ -761,11 +755,12 @@ class EditDefinition(Navigator):
         self.keywords_dict = self.dp.keywords_dict
         self.in_a_mode = False
         self.mode = 0
-        self.selected_kw_item = self.keywords_dict[self.mode]  # selected keyword item (dict)
+        self.selected_kw_item = self.keywords_dict[self.mode] # selected keyword item (dict)
         self.selected_kw_value = None
         self.prev_state = SelectSong
         # self.keywords_defaults_dict = self.dp.keywords_defaults_dict
         self.display()
+
 
     def display(self):
 
@@ -781,7 +776,7 @@ class EditDefinition(Navigator):
             value = self.dp.existing_patterns[self.selected_kw_item.get('name')]
 
             if 'Release' in keyword_str:
-                value = float(value) / 58.82  # convert to seconds
+                value = float(value) / 58.82 # convert to seconds
                 value = '%ss' % str(value)[:4]  # display like: 1.23s
                 # value = '%sms' % str(int(value*1000))[:4]  # display like: 50ms
             else:
@@ -835,7 +830,7 @@ class EditDefinition(Navigator):
                 if type(value) == str:
                     value = value.title()
 
-                self.dp.change_item_value(preset=self.preset, item=self.selected_kw_item, direction=None)  # direction=None will set the default
+                self.dp.change_item_value(preset=self.preset, item=self.selected_kw_item, direction=None) # direction=None will set the default
 
                 print '### %s does not exist. Set default: %s ###' % (self.selected_kw_item.get('name').title(), str(value))
 
@@ -847,6 +842,7 @@ class EditDefinition(Navigator):
             self.in_a_mode = False
             self.display()
 
+
     def cancel(self):
 
         if self.in_a_mode:
@@ -854,6 +850,8 @@ class EditDefinition(Navigator):
             self.dp.revert_to_original_settings(preset=self.preset, keyword=self.selected_kw_item.get('name'))
 
         Navigator.state = self.prev_state(EditDefinition)  # go back up a menu tier
+
+
 
 
 class AudioDevice(Navigator):
@@ -1066,10 +1064,10 @@ class InvertSustain(Navigator):
 
     def cancel(self):
         self.load_state(MenuNav)
-        self.load_state(MenuNav)
-
 
 class WirelessNetwork(Navigator):
+
+
     def __init__(self):
 
         self.text_scroller.stop()
@@ -1101,25 +1099,16 @@ class WirelessNetwork(Navigator):
 
             self.ss.next_ssid()
             self.line2 = self.ss.get_selected_ssid_name()
+            # self.line1 = self.ss.get_selected_ssid_name()
 
 
         elif self.MENU_MODE == 'password_input':
 
-            if self.pi.strings_pos < 3:
-                self.line1 = self.pi.get_next_char()
-            elif self.pi.strings_pos == 1:
-                self.line1 = 'None/no password'
-            else:
-                self.line1 = self.pi.psk + self.pi.get_next_char()
-
-            if self.pi.page == 0:
-                self.line2 = ''.join(self.pi.strings)
-            else:
-                start_char = (self.pi.page * gv.LCD_COLS) + gv.LCD_COLS
-                end_char = start_char + (gv.LCD_COLS * 2)
-                self.line2 = ''.join(self.pi.strings[start_char:end_char])
+            self.line1 = self.pi.get_next_char()
+            self.line2 = self.pi.psk
 
         self.display()
+
 
     def left(self):
 
@@ -1130,19 +1119,8 @@ class WirelessNetwork(Navigator):
 
         elif self.MENU_MODE == 'password_input':
 
-            if self.pi.strings_pos < 3:
-                self.line1 = self.pi.get_prev_char()
-            elif self.pi.strings_pos == 1:
-                self.line1 = 'None/no password'
-            else:
-                self.line1 = self.pi.psk + self.pi.get_prev_char()
-
-            if self.pi.page == 0:
-                self.line2 = ''.join(self.pi.strings)
-            else:
-                start_char = (self.pi.page * gv.LCD_COLS) + gv.LCD_COLS
-                end_char = start_char + (gv.LCD_COLS * 2)
-                self.line2 = ''.join(self.pi.strings[start_char:end_char])
+            self.line1 = self.pi.get_prev_char()
+            self.line2 = self.pi.psk
 
         self.display()
 
@@ -1152,13 +1130,12 @@ class WirelessNetwork(Navigator):
 
             self.pi = network.PasswordInputer(self.ss.get_selected_ssid_name())
             self.MENU_MODE = 'password_input'
-            self.pi.strings_pos = 3
-            self.line1 = self.pi.get_current_char()
+            self.line1 = ''
             self.line2 = ''.join(self.pi.strings)
 
         elif self.MENU_MODE == 'password_input':
 
-            if self.pi.strings_pos == 0 or self.pi.strings_pos == 1:  # SAVE or Save with no password (open network)
+            if self.pi.strings_pos == 0:
 
                 self.pi.enter()
                 self.MENU_MODE = 'ssid_selection'
@@ -1166,11 +1143,10 @@ class WirelessNetwork(Navigator):
                 self.line2 = self.ss.get_selected_ssid_name()
 
             else:
-
                 self.pi.enter()
-                self.pi.strings_pos = 3
-                self.line1 = self.pi.psk + self.pi.get_current_char()
-                self.line2 = ''.join(self.pi.strings)
+                self.line1 = self.pi.psk
+                self.line2 = self.line2 = ''.join(self.pi.strings)
+
 
         self.display()
 
@@ -1187,77 +1163,3 @@ class WirelessNetwork(Navigator):
             self.line2 = self.ss.get_selected_ssid_name()
 
             self.display()
-
-
-class SetVelocityCurve(Navigator):
-    def __init__(self):
-        self.text_scroller.stop()
-        self.vc = VelocityCurves()
-        self.alpha_index = gv.VELOCITY_CURVE
-        self.display()
-
-    def display(self):
-        first_line = 'Velocity Curve'
-        second_line = '[%d] %s' % (self.alpha_index, self.vc.alpha_list[self.alpha_index][1])
-
-        gv.displayer.disp_change(first_line.center(gv.LCD_COLS, ' '), line=1, timeout=0)
-        Navigator.text_scroller.stop()
-        if len(second_line) > gv.LCD_COLS:  # make it scroll
-            Navigator.text_scroller.set_string(string=second_line, line=2)
-        else:
-            gv.displayer.disp_change(changed_var=second_line.center(gv.LCD_COLS, ' '), line=2, timeout=0)
-
-    def left(self):
-        if self.alpha_index > 0:
-            self.alpha_index -= 1
-            gv.VELOCITY_CURVE = self.alpha_index
-            self.display()
-
-    def right(self):
-        if self.alpha_index < len(self.vc.alpha_list) - 1:
-            self.alpha_index += 1
-            gv.VELOCITY_CURVE = self.alpha_index
-            self.display()
-
-    def enter(self):
-        gv.VELOCITY_CURVE = self.alpha_index
-        gv.cp.update_config('SAMPLERBOX CONFIG', 'VELOCITY_CURVE', str(self.alpha_index))
-        self.cancel()
-
-    def cancel(self):
-        self.load_state(MenuNav)
-
-
-class IpCheck(Navigator):
-    def __init__(self):
-
-        self.text_scroller.stop()
-
-        eth0 = network.NetworkInfo().get_ip_address('eth0')
-        wlan0 = network.NetworkInfo().get_ip_address('wlan0')
-
-        self.interfaces = [('Wireless', wlan0), ('Ethernet', eth0)]
-        self.interface_index = 0
-        self.display()
-
-    def display(self):
-        first_line = self.interfaces[self.interface_index][0]
-        second_line = self.interfaces[self.interface_index][1]
-
-        gv.displayer.disp_change(first_line.center(gv.LCD_COLS, ' '), line=1, timeout=0)
-        gv.displayer.disp_change(second_line.center(gv.LCD_COLS, ' '), line=2, timeout=0)
-
-    def left(self):
-
-        if self.interface_index > 0:
-            self.interface_index -= 1
-            self.display()
-
-    def right(self):
-
-        if self.interface_index < len(self.interfaces):
-            self.interface_index += 1
-            self.display()
-
-    def cancel(self):
-        self.load_state(MenuNav)

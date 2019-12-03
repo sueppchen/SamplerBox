@@ -62,8 +62,7 @@ class Setlist:
         # self.update()
 
     def update(self):
-         setlist_from_file = open(gv.SETLIST_FILE_PATH).read().splitlines()
-         gv.SETLIST_LIST = filter(lambda x: not re.match(r'^\s*$', x), setlist_from_file) # strip out empty lines
+        gv.SETLIST_LIST = open(gv.SETLIST_FILE_PATH).read().splitlines()
 
     def find_missing_folders(self):
         # Check to see if the song name in the setlist matches the name of a folder.

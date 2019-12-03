@@ -198,13 +198,12 @@ class StartSound:
         #     self.start_sounddevice_stream('high') # must be high latency for on-board
         #     self.start_alsa_mixer()
         if self.is_alsa_device(device_name):
-            latency = gv.LATENCY
-            if 'bcm2835' in device_name:
-                latency = 'high'
-            self.start_sounddevice_stream(latency=latency)
+            latency = 'low'
+            if 'bcm2835' in device_name: latency = 'high'
+            self.start_sounddevice_stream(latency)
             self.start_alsa_mixer()
         else:
-            self.start_sounddevice_stream(latency=gv.LATENCY)
+            self.start_sounddevice_stream()
 
 
         print '\n#### END OF AUDIO DEVICES ####\n'
@@ -216,7 +215,7 @@ class StartSound:
     def start_sounddevice_stream(self, latency='low'):
 
         try:
-            self.sd = sounddevice.OutputStream(device=gv.AUDIO_DEVICE_ID, blocksize=512, latency=latency, samplerate=gv.SAMPLERATE, channels=2, dtype='int16', callback=audio_callback)
+            self.sd = sounddevice.OutputStream(device=gv.AUDIO_DEVICE_ID, blocksize=gv.BUFFERSIZE, latency=latency, samplerate=gv.SAMPLERATE, channels=2, dtype='int16', callback=audio_callback)
             self.sd.start()
             print '>>>> Opened audio device #%i (latency: %ims)' % (gv.AUDIO_DEVICE_ID, self.sd.latency * 1000)
         except:

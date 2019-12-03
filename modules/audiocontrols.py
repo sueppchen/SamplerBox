@@ -4,8 +4,6 @@ import ctypes
 from os.path import dirname, abspath
 from collections import OrderedDict
 import random
-from velocitycurves import VelocityCurves
-
 if gv.USE_TONECONTROL:
     from filters import FilterType, Filter, FilterChain
 
@@ -17,7 +15,6 @@ class AudioControls(object):
         self.sustain = Sustain()
         self.pitchbend = PitchBend()
         self.voice = Voice()
-        self.ivc = VelocityCurves()
         if gv.USE_FREEVERB and gv.IS_DEBIAN:
             self.reverb = Reverb(60, 127, 0, 127, 127)
         if gv.USE_TONECONTROL:
@@ -45,10 +42,6 @@ class AudioControls(object):
                         pass
 
     def noteon(self, midinote, midichannel, velocity):
-
-        vel_alpha = self.ivc.alpha_list[int(gv.VELOCITY_CURVE)][0] # VELOCITY_CURVE is actually an index of a list of alpha values
-        velocity = self.ivc.adjust_vel(velocity, vel_alpha)
-
         try:
             midinote += gv.globaltranspose
             actual_preset = gv.samples_indices[gv.preset]
@@ -75,9 +68,13 @@ class AudioControls(object):
                                 # print "clean note " + str(playnote)
                                 m.fadeout(50)
                             gv.playingnotes[midichannel][playnote] = []  # housekeeping
+
                     # Start David Hilowitz
                     # Get the list of available samples for this note and velocity
                     notesamples = gv.samples[actual_preset][playnote, velocity, gv.currvoice, midichannel]
+                    
+                    #print " ******** " + str(notesamples)
+                    
                     # Choose a sample from the list
                     sample = random.choice(notesamples)
                     # If we have no value for lastplayedseq, set it to 0

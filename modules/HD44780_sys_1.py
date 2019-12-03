@@ -7,12 +7,14 @@ import sys
 import time
 import threading
 import lcdcustomchars as lcdcc
+#i2c
+#import smbus
 
 
 class LCD_SYS_1:
     def __init__(self):
-
-        if gv.SYSTEM_MODE == 1 and (gv.USE_HD44780_16x2_LCD or gv.USE_HD44780_20x4_LCD):
+        
+        if gv.SYSTEM_MODE == 1 and (gv.USE_HD44780_16x2_LCD or gv.USE_HD44780_20x4_LCD or gv.USE_I2C_16X2DISPLAY):
 
             # Timing constants
             self.E_PULSE = 0.0005
@@ -42,17 +44,30 @@ class LCD_SYS_1:
 
             if gv.IS_DEBIAN:
                 import RPi.GPIO as GPIO
-                from RPLCD import CursorMode
-                from RPLCD import CharLCD
+                import RPLCD
 
-                self.lcd = CharLCD(pin_rs=gv.GPIO_LCD_RS, pin_rw=None, pin_e=gv.GPIO_LCD_E,
-                                   pins_data=[gv.GPIO_LCD_D4, gv.GPIO_LCD_D5, gv.GPIO_LCD_D6, gv.GPIO_LCD_D7],
-                                   numbering_mode=GPIO.BCM, cols=gv.LCD_COLS, rows=gv.LCD_ROWS, charmap='A00')
+                if (gv.USE_HD44780_16x2_LCD or gv.USE_HD44780_20x4_LCD):
+                    from RPLCD.gpio import CharLCD
+                    self.lcd = CharLCD(pin_rs=gv.GPIO_LCD_RS, pin_rw=None, pin_e=gv.GPIO_LCD_E,
+                                       pins_data=[gv.GPIO_LCD_D4, gv.GPIO_LCD_D5, gv.GPIO_LCD_D6, gv.GPIO_LCD_D7],
+                                       numbering_mode=GPIO.BCM, cols=gv.LCD_COLS, rows=gv.LCD_ROWS, charmap='A00')
+                
+                elif (gv.USE_I2C_16X2DISPLAY):
+                    from RPLCD.i2c import CharLCD
+#                    print 'Addr: ' + str(gv.I2C_16x2DISPLAY_ADDR)
+#                    self.lcd = CharLCD('PCF8574', gv.I2C_16x2DISPLAY_ADDR)
+                    self.lcd = CharLCD(i2c_expander='PCF8574', address=gv.I2C_16x2DISPLAY_ADDR, port=1,
+                                       cols=16, rows=2, dotsize=8,
+                                       charmap='A00',
+                                       auto_linebreaks=True,
+                                       backlight_enabled=True)
+#                    self.lcd.write_string('Hello world')
 
                 self.lcd.clear()
 
                 # Hide the cursor
-                self.lcd._set_cursor_mode(CursorMode.hide)
+#                self.lcd._set_cursor_mode(CursorMode.hide)
+                self.lcd.cursor_mode = 'hide'
 
                 # Fill the display with blank spaces
                 for i in xrange(1, gv.LCD_ROWS+1):
@@ -64,7 +79,9 @@ class LCD_SYS_1:
                 self.lcd.create_char(3, lcdcc.voice_button_on)
                 self.lcd.create_char(4, lcdcc.voice_button_off)
                 self.lcd.create_char(5, lcdcc.block2)
-                self.lcd.create_char(6, lcdcc.loading_hour_glass)
+                self.lcd.create_char(6, lcdcc.loading_1)
+                self.lcd.create_char(7, lcdcc.loading_2)
+                self.lcd.create_char(0, lcdcc.loading_3)
 
         self.LCDThread = threading.Thread(target=self.lcd_main)
         self.LCDThread.daemon = True
@@ -140,7 +157,7 @@ class LCD_SYS_1:
         message = message[:gv.LCD_COLS]
         message = message.ljust(gv.LCD_COLS, " ")
 
-        if (gv.USE_HD44780_16x2_LCD or gv.USE_HD44780_20x4_LCD) and gv.IS_DEBIAN:
+        if (gv.USE_HD44780_16x2_LCD or gv.USE_HD44780_20x4_LCD or gv.USE_I2C_16X2DISPLAY) and gv.IS_DEBIAN:
 
             self.lcd.write_string(message[:gv.LCD_COLS])
 

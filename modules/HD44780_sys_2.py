@@ -6,6 +6,7 @@ import globalvars as gv
 import threading
 import sys
 import time
+#import smbus
 
 class LCD_SYS_2:
 
@@ -21,15 +22,19 @@ class LCD_SYS_2:
         self.timeout = self.timeout_init
         self.display_called = False
 
-        if (gv.USE_HD44780_16x2_LCD or gv.USE_HD44780_20x4_LCD) and gv.IS_DEBIAN:
+        if (gv.USE_HD44780_16x2_LCD or gv.USE_HD44780_20x4_LCD or gv.USE_I2C_16X2DISPLAY) and gv.IS_DEBIAN:
 
             import lcdcustomchars as lcdcc
             import RPi.GPIO as GPIO
             from RPLCD import CharLCD
 
-            self.lcd = CharLCD(pin_rs=gv.GPIO_LCD_RS, pin_rw=None, pin_e=gv.GPIO_LCD_E,
-                          pins_data=[gv.GPIO_LCD_D4, gv.GPIO_LCD_D5, gv.GPIO_LCD_D6, gv.GPIO_LCD_D7],
-                          numbering_mode=GPIO.BCM, cols=gv.LCD_COLS, rows=gv.LCD_ROWS)
+            if (gv.USE_HD44780_16x2_LCD or gv.USE_HD44780_20x4_LCD):
+                self.lcd = CharLCD(pin_rs=gv.GPIO_LCD_RS, pin_rw=None, pin_e=gv.GPIO_LCD_E,
+                                   pins_data=[gv.GPIO_LCD_D4, gv.GPIO_LCD_D5, gv.GPIO_LCD_D6, gv.GPIO_LCD_D7],
+                                   numbering_mode=GPIO.BCM, cols=gv.LCD_COLS, rows=gv.LCD_ROWS, charmap='A00')
+            
+            elif (gv.USE_I2C_16X2DISPLAY):
+                self.lcd = CharLCD('PCF8574', gv.I2C_16x2DISPLAY_ADDR)
 
             self.lcd.create_char(1, lcdcc.block)
             self.lcd.create_char(2, lcdcc.arrow_right_01)
