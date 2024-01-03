@@ -1,7 +1,7 @@
 #########################################
 # 7-SEGMENT DISPLAY
 #########################################
-import globalvars as gv
+from . import globalvars as gv
 import time
 
 if gv.USE_I2C_7SEGMENTDISPLAY and gv.IS_DEBIAN:

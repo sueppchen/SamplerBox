@@ -1,4 +1,4 @@
-import globalvars as gv
+from . import globalvars as gv
 import time
 import os
 import subprocess
@@ -7,10 +7,10 @@ def mount_samples_dir_rw():
     try:
         if '/samples' in gv.SAMPLES_DIR:
             subprocess.call(['mount', '-vo', 'remount,rw', '/samples'])
-            print '/samples has been remounted as READ-WRITE'
+            print('/samples has been remounted as READ-WRITE')
         elif '/media' in gv.SAMPLES_DIR:
             subprocess.call(['mount', '-vo', 'remount,rw', '/media'])
-            print '/media has been remounted as READ-WRITE'
+            print('/media has been remounted as READ-WRITE')
     except:
         pass
 
@@ -18,38 +18,38 @@ def mount_samples_dir_ro():
     try:
         if gv.SAMPLES_DIR == '/samples':
             subprocess.call(['mount', '-vo', 'remount,ro', '/samples'])
-            print '/samples has been remounted as READ-ONLY'
+            print('/samples has been remounted as READ-ONLY')
         elif '/media' in gv.SAMPLES_DIR:
             subprocess.call(['mount', '-vo', 'remount,ro', '/media'])
-            print '/media has been remounted as READ-ONLY'
+            print('/media has been remounted as READ-ONLY')
     except:
         pass
 
 def mount_boot_rw():
     try:
         if gv.CONFIG_FILE_PATH == "/boot/samplerbox/config.ini": subprocess.call(['mount', '-vo', 'remount,rw', '/boot'])
-        print '/boot has been remounted as READ-WRITE'
+        print('/boot has been remounted as READ-WRITE')
     except:
         pass
 
 def mount_boot_ro():
     try:
         if gv.CONFIG_FILE_PATH == "/boot/samplerbox/config.ini": subprocess.call(['mount', '-vo', 'remount,ro', '/boot'])
-        print '/boot has been remounted as READ-ONLY'
+        print('/boot has been remounted as READ-ONLY')
     except:
         pass
 
 def mount_root_rw():
     try:
         subprocess.call(['mount', '-vo', 'remount,rw', '/'])
-        print '/ has been remounted as READ-WRITE'
+        print('/ has been remounted as READ-WRITE')
     except:
         pass
 
 def mount_root_ro():
     try:
         subprocess.call(['mount', '-vo', 'remount,ro', '/'])
-        print '/ has been remounted as READ-ONLY'
+        print('/ has been remounted as READ-ONLY')
     except:
         pass
 
@@ -114,7 +114,7 @@ class SystemFunctions:
 
         if gv.SYSTEM_MODE == 1: gv.nav.text_scroller.stop()  # stop the text scroller in SYS MODE 1
         shutdown_message = 'GOOD BYE!'.center(gv.LCD_COLS, ' ')
-        for i in xrange(gv.LCD_ROWS):
+        for i in range(gv.LCD_ROWS):
             gv.displayer.disp_change(str_override=shutdown_message, line=(i + 1), timeout=1, is_priority=True)
 
         time.sleep(0.5)
@@ -125,6 +125,6 @@ class SystemFunctions:
 
         if gv.IS_DEBIAN:
             gv.displayer.LCD_SYS.lcd.close(clear=False) # does GPIO.cleanup()
-            print 'GPIO was cleaned up'
+            print('GPIO was cleaned up')
 
         exit()

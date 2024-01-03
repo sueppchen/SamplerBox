@@ -24,18 +24,19 @@ import socket
 import struct
 import traceback
 import unittest
-import Queue
+import queue
 
 import rtmidi
 
 import config
 import stats
 
-outq = Queue.Queue()
+outq = queue.Queue()
 
 pilink_debug=""
 
-print config.rtmidi_PORT
+if config.DEBUG:
+    print(config.rtmidi_PORT)
 
 def parseHexValue(v) :
     if v.startswith("0x") or v.startswith("0X") :
@@ -133,7 +134,7 @@ def parseMidiMsg(msg, replaceValues) :
         if first in "xyz" :
             replacePos = ord(first) - ord('x')
             if len(i) > 1 and i[1] == "(" :
-                rng = map(parseHexValue, i[2:-1].split(".."))
+                rng = list(map(parseHexValue, i[2:-1].split("..")))
                 ratio = rng[1] - rng[0]
                 midiMsg.append(int(replaceValues[replacePos] * ratio) + rng[0])
             else :
@@ -186,7 +187,8 @@ def oscInput() :
         try :
             networkConn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
             networkConn.bind(("0.0.0.0", config.receiveport))
-            print("PILINK: LISTENING UDP PORT %d" % config.receiveport)
+            if config.DEBUG:
+                print(("PILINK: LISTENING UDP PORT %d" % config.receiveport))
             while 1 :
                 midiMsg = [] # send empty midi message
                 msg = networkConn.recvfrom(4096)[0]
@@ -201,13 +203,13 @@ def oscInput() :
                 except Exception as e :
                     stats.error(e)
                     exc_type, exc_value, exc_traceback = sys.exc_info()
-                    print(str(traceback.format_exception(exc_type, exc_value, exc_traceback)))
+                    print((str(traceback.format_exception(exc_type, exc_value, exc_traceback))))
                 if len(midiMsg) != 0 :
                     outq.put_nowait(midiMsg)
 
         except Exception as e :
             stats.error(e)
-            print("PILINK: **> Exception cought: %s" % e)
+            print(("PILINK: **> Exception cought: %s" % e))
             if lastError + 5 > time.time() :
                 print("PILINK: Waiting before trying again....")
                 time.sleep(5)
@@ -230,28 +232,29 @@ def midiOutput() :
     
     while True :
         try :
-            midiConn = rtmidi.MidiOut()                                 #neu
-            available_ports = midiConn.get_ports()                      #neu
+            midiConn = rtmidi.RtMidiOut()                                 #neu
+            #available_ports = midiConn.getPorts()                      #neu
             
-            print("PILINK: --> midioutports: ")                                     #neu-test
-            for i in available_ports :                                  #neu-test
-                 print("PILINK: --> " + i)                                               #neu-test
+            if config.DEBUG:
+                print("PILINK: --> midioutports: " + str(midiConn.getPortCount() ))
+                for i in range(midiConn.getPortCount()) :
+                    print( "PILINK: --> " + midiConn.getPortName(i) )                                               #neu-test
 
-            if available_ports:                                         #neu
-                 midiConn.open_port(config.rtmidi_PORT)                        #neu
+            if midiConn.getPortCount() > 0 :                                         #neu
+                midiConn.openPort(config.rtmidi_PORT)                        #neu
             else:                                                       #neu
-                 midiConn.open_virtual_port("My virtual output")        #neu
+                midiConn.openVirtualPort("My virtual output")        #neu
             while 1 :
                 midiMsg = outq.get(True)
                 display = ""
                 for i in midiMsg :
                     display = display + "0x%x " % i
                 #stats.midiout(display)                                  # chan Note Vel
-                midiConn.send_message(midiMsg)                          #neu
+                midiConn.sendMessage(midiMsg)                          #neu
 
         except Exception as e :
             stats.error(e)
-            print("PILINK: **> Midi Output Exception cought: %s" % e)
+            print(("PILINK: **> Midi Output Exception cought: %s" % e))
             if lastError + 5 > time.time() :
                 print("PILINK: Waiting before trying again....")
                 time.sleep(5)
@@ -274,9 +277,9 @@ def midiOutput() :
 
 class PiLink(unittest.TestCase) :
     def testOne(self) :
-        self.assertEquals(osc2Midi(["/midi/0x90 60 127", 0]), [0x90, 60, 127])
-        self.assertEquals(osc2Midi(["/midi/z/0x90 60 127/0x91 0x21 00", 0]), [0x90, 60, 127, 0x91, 0x21, 0])
-        self.assertEquals(osc2Midi(["/midi/0xf0 0xb0 0 0 0xb0 0x20 0x00 0xc0 52 0xf7", 0]), [0xf0, 0xb0, 0, 0, 0xb0, 0x20, 0x00, 0xc0, 52, 0xF7])
+        self.assertEqual(osc2Midi(["/midi/0x90 60 127", 0]), [0x90, 60, 127])
+        self.assertEqual(osc2Midi(["/midi/z/0x90 60 127/0x91 0x21 00", 0]), [0x90, 60, 127, 0x91, 0x21, 0])
+        self.assertEqual(osc2Midi(["/midi/0xf0 0xb0 0 0 0xb0 0x20 0x00 0xc0 52 0xf7", 0]), [0xf0, 0xb0, 0, 0, 0xb0, 0x20, 0x00, 0xc0, 52, 0xF7])
 
 if __name__ == "__main__" :
     unittest.main()

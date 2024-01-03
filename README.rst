@@ -21,10 +21,24 @@ or filenames and rules defined in a definition.txt file.
 
 Documentation
 -------------
+This is a rework of the  original samplerbox with the best of the best of the best and... 
++ user-Interface can be connected over serial cable (5V, GND, sda, scl, INT) - don't forget the level-shifter
+  - the 16x2 LCD can be connected via i2c (PCF8574)
+  - the buttons ban be connected via i2c + INT-pin (PCF8574) 
 
+- samples are located on a third partition mounted at /samples or on USB-flash-drive mounted at /media
+
+- configuration is done in boot-partition
+
+- it is possible to create multi-sample-sets with different samples/voices for each channel
+  (see example definitions.txt)
+
++ midi over OSC
++ translated to python3
+
+- testet and running on pi zero-w(1.1) with i2s-soundcard and usb-midi
+  
 More in-depth documentation can be found `here <http://samplerbox.readthedocs.io/>`_.
-
-added i2c user-interface, multichannel-sampling, midi over OSC support...
 
 Contributors
 ------------
@@ -39,6 +53,8 @@ Contributors
 |**Hans Hommersom**|web: http://homspace.xs4all.nl/homspace/samplerbox/index.html                                                                           |
 +------------------+----------------------------------------------------------------------------------------------------------------------------------------+
 |**Erik**          |web: http://www.nickyspride.nl/sb2/                                                                                                     |
++------------------+----------------------------------------------------------------------------------------------------------------------------------------+
+|**Sueppchen**     |                                                                                                                                        |
 +------------------+----------------------------------------------------------------------------------------------------------------------------------------+
 
 

@@ -10,12 +10,12 @@ import threading
 import time
 import configparser
 # import configparser_samplerbox as cs
-import globalvars as gv
-import menudict
-from textscroller import TextScroller
+from . import globalvars as gv
+from . import menudict
+from .textscroller import TextScroller
 from modules import definitionparser
-import configdefaultsdict as cdd
-import network
+from . import configdefaultsdict as cdd
+from . import network
 
 # ______________________________________________________________________________
 
@@ -62,7 +62,7 @@ class Navigator:
 
 class PresetNav(Navigator):
     def __init__(self):
-        print '-= Preset world =-'
+        print('-= Preset world =-')
         self.text_scroller.stop()
         gv.displayer.menu_mode = gv.displayer.DISP_PRESET_MODE
         gv.displayer.disp_change('preset')
@@ -101,7 +101,7 @@ class PresetNav(Navigator):
 class UtilsView(PresetNav):
     def __init__(self):
 
-        print '-= Utils view =-'
+        print('-= Utils view =-')
         gv.displayer.menu_mode = gv.displayer.DISP_UTILS_MODE
         gv.displayer.disp_change(changed_var='util')
         self.timeout_start = time.time()
@@ -161,7 +161,7 @@ class MenuNav(Navigator):
 
         gv.displayer.disp_change(title, line=1, timeout=0)
 
-        if menu_dict_item.has_key('desc'):
+        if 'desc' in menu_dict_item:
 
             desc = menu_dict_item.get('desc')
 
@@ -199,14 +199,14 @@ class MenuNav(Navigator):
         global function_to_map, function_nice_name
         menu = self.get_menu().get(self.menu_pointer)
         try:
-            if menu.has_key('submenu'):
+            if 'submenu' in menu:
                 # print '##### Entering submenu for [' + menu.get('name') + '] #####'
-                if menu.has_key('function_to_map'):
+                if 'function_to_map' in menu:
                     function_to_map = menu.get('function_to_map')
                     function_nice_name = menu.get('name')
                 self.menu_coords.append(0)
                 self.load_state(MenuNav)
-            if menu.has_key('fn'):
+            if 'fn' in menu:
                 if (menu.get('fn') == 'MidiLearn') or (menu.get('fn') == 'DeleteMidiMap'):
                     self.menu_coords.append(0)
                     Navigator.state = eval(menu.get('fn'))(function_to_map, function_nice_name)
@@ -365,7 +365,7 @@ class DeleteSong(Navigator):
         gv.displayer.disp_change('WARNING: will crash if we delete all songs'.center(gv.LCD_COLS, ' '), line=2)
 
     def enter(self):
-        print gv.SETLIST_LIST
+        print(gv.SETLIST_LIST)
         del gv.SETLIST_LIST[gv.samples_indices[gv.preset]]
         gv.setlist.write_setlist(self.setlist_list)
         # TODO: need to reset sample_indices and update SETLIST_LIST
@@ -419,26 +419,26 @@ class MidiLearn(Navigator):
             messageKey = (messagetype, note)
             if src not in mm:
                 mm[src] = {}  # create new empty dict key for device
-                print 'Creating new device in dict'
+                print('Creating new device in dict')
             else:
-                print 'Device is in dict - do nothing'
+                print('Device is in dict - do nothing')
             if messageKey not in mm.get(src):
                 mm.get(src)[messageKey] = {}  # create new empty dict key for messageKey
-                print 'Creating new dict for the messageKey'
+                print('Creating new dict for the messageKey')
             else:
-                print 'WARNING:', messageKey, 'is already mapped to:', mm.get(src).get(messageKey).get('name')
-                print 'Do you want to overwrite? Well too bad - doing it anyway ;)'
+                print('WARNING:', messageKey, 'is already mapped to:', mm.get(src).get(messageKey).get('name'))
+                print('Do you want to overwrite? Well too bad - doing it anyway ;)')
 
             mm.get(src)[messageKey] = {'name': self.function_nice_name, 'fn': self.function_to_map}
 
-            import midimaps
+            from . import midimaps
             midimaps.MidiMapping().save_maps(mm)
 
             self.cancel()  # Go back
 
 
         except:
-            print 'failed for some reason'
+            print('failed for some reason')
             pass
 
     def cancel(self):
@@ -465,12 +465,12 @@ class DeleteMidiMap(Navigator):
 
         matchedMappings = {}
         i = 0
-        for devices in self.midimaps.iteritems():
+        for devices in self.midimaps.items():
             deviceName = devices[0]
             deviceMaps = devices[1]
-            for midiKey, midiKeyDict in deviceMaps.iteritems():
+            for midiKey, midiKeyDict in deviceMaps.items():
                 # print mm2
-                for midiKeyItem in midiKeyDict.iteritems():
+                for midiKeyItem in midiKeyDict.items():
                     fnName = midiKeyItem[1]
                     if fnName == functionToUnmap:
                         # Build a new dictionary to build dict addresses for matched keys
@@ -505,16 +505,16 @@ class DeleteMidiMap(Navigator):
         deviceName = self.matchedMappings[self.i][0]
         midiKey = self.matchedMappings[self.i][1]
         try:
-            for device in mm.iteritems():
+            for device in mm.items():
                 if deviceName in device:
                     device[1].pop(midiKey)
 
-            import midimaps
+            from . import midimaps
             midimaps.MidiMapping().save_maps(mm)
             self.cancel()  # Go back
 
         except:
-            print 'failed for some reason'
+            print('failed for some reason')
             pass
 
     def cancel(self):
@@ -562,7 +562,7 @@ class MaxPolyphonyConfig(Navigator):
 class MidiChannelConfig(Navigator):
     def __init__(self):
         self.text_scroller.stop()
-        print '-= MIDI Channel !IMPORTANT: All MIDI ports are open with rtmidi2 =-'
+        print('-= MIDI Channel !IMPORTANT: All MIDI ports are open with rtmidi2 =-')
         self.MIDI_CHANNEL = gv.MIDI_CHANNEL
         self.display()
 
@@ -817,13 +817,13 @@ class EditDefinition(Navigator):
             self.in_a_mode = True
 
             self.selected_kw_item = self.keywords_dict[self.mode]
-            if self.dp.existing_patterns.has_key(self.selected_kw_item.get('name')):
+            if self.selected_kw_item.get('name') in self.dp.existing_patterns:
 
                 value = self.dp.existing_patterns[self.selected_kw_item.get('name')]
                 if type(value) == str:
                     value = value.title()
 
-                print '### %s exists with a value of %s ###' % (self.selected_kw_item.get('name').title(), str(value))
+                print('### %s exists with a value of %s ###' % (self.selected_kw_item.get('name').title(), str(value)))
             else:
 
                 value = definitionparser.get_default(self.selected_kw_item.get('name'))
@@ -832,7 +832,7 @@ class EditDefinition(Navigator):
 
                 self.dp.change_item_value(preset=self.preset, item=self.selected_kw_item, direction=None) # direction=None will set the default
 
-                print '### %s does not exist. Set default: %s ###' % (self.selected_kw_item.get('name').title(), str(value))
+                print('### %s does not exist. Set default: %s ###' % (self.selected_kw_item.get('name').title(), str(value)))
 
             self.display()
 
@@ -1075,11 +1075,11 @@ class WirelessNetwork(Navigator):
         self.MENU_MODE = 'ssid_selection'
 
         self.w = network.Wifi()
-        print self.w.ssids
+        print(self.w.ssids)
 
         self.ss = network.SSIDSelector(self.w.ssids)
 
-        print 'init SSID (@ [0]):', self.ss.get_selected_ssid_name()
+        print('init SSID (@ [0]):', self.ss.get_selected_ssid_name())
 
         self.pi = None
 

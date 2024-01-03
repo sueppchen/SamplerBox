@@ -15,9 +15,9 @@
 
 """
 
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, HTTPServer
 import mimetypes
-import urlparse
+import urllib.parse
 import os
 import json
 import inspect
@@ -83,7 +83,7 @@ class ConfigHTTPHandler(BaseHTTPRequestHandler):
         baseuri = target[1:].split("?")
         if service.isService(baseuri[0]) :
             if len(baseuri) > 1 :
-                cfg = urlparse.parse_qs(baseuri[1])
+                cfg = urllib.parse.parse_qs(baseuri[1])
             else :
                 cfg = {}
             out = service.call(baseuri[0], cfg, self)

@@ -37,21 +37,21 @@ class MIDISerial:
                     if self.midicallback:
                         self.midicallback.callback(src='MIDISERIALPORT', message=message, time_stamp=None)
                     else:
-                        print message
+                        print(message)
 
 
             MidiThread = threading.Thread(target=midi_serial_callback)
             MidiThread.daemon = True
             MidiThread.start()
         except:
-            print '\r\n [!] Could not start MIDI serial'
+            print('\r\n [!] Could not start MIDI serial')
 
 
 
 
 if __name__ == '__main__':
 
-    print 'Testing MIDI serial'
+    print('Testing MIDI serial')
     ms = MIDISerial()
     ms.start()
     while True:

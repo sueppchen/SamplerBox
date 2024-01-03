@@ -2,7 +2,7 @@
 ##  LCD DISPLAY
 #########################################
 
-import globalvars as gv
+from . import globalvars as gv
 import threading
 import sys
 import time
@@ -24,7 +24,7 @@ class LCD_SYS_2:
 
         if (gv.USE_HD44780_16x2_LCD or gv.USE_HD44780_20x4_LCD or gv.USE_I2C_16X2DISPLAY) and gv.IS_DEBIAN:
 
-            import lcdcustomchars as lcdcc
+            from . import lcdcustomchars as lcdcc
             import RPi.GPIO as GPIO
             from RPLCD import CharLCD
 

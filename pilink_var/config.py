@@ -5,4 +5,4 @@ sendport = 8000
 receiveport = 9000
 mididev = '/dev/midi2'
 rtmidi_PORT = 0
-
+DEBUG = False

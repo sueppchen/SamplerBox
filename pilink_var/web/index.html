@@ -1,0 +1,83 @@
+<html>
+	<head>
+	    <link rel="stylesheet" href="css/angular-material.min.css">
+      <link rel="stylesheet" href="css/modal.css">      
+	</head>
+
+	<body ng-app="app">
+	<script src="lib/angular.min.js"></script>
+  <script src="lib/angular-animate.min.js"></script>
+  <script src="lib/angular-aria.min.js"></script>
+  <script src="lib/angular-material.min.js"></script>
+  <script src="lib/jquery.min.js"></script>
+  <script src="main.js"></script>
+
+  <md-content ng-controller="formController">
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <md-button class="md-icon-button" aria-label="Settings">
+          <md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
+        </md-button>
+        <h2>
+          <span>PiLink</span>
+        </h2>
+        <span flex></span>
+      </div>
+    </md-toolbar>
+    <md-content layout-padding>
+      <div>
+        <form ng-submit="processForm()">
+          <div layout-gt-sm="row">
+            <md-input-container class="md-block" flex-gt-sm>
+              <label>Send Host</label>
+              <input ng-model="formData.sendhost">
+            </md-input-container>
+
+            <md-input-container class="md-block" flex-gt-sm>
+              <label>Send Port</label>
+              <input ng-model="formData.sendport">
+            </md-input-container>
+
+            <md-input-container class="md-block" flex-gt-sm>
+              <label>Receive Port</label>
+              <input ng-model="formData.receiveport">
+            </md-input-container>
+
+            <md-input-container class="md-block" flex-gt-sm>
+              <label>Midi Device</label>
+              <md-select ng-model="formData.mididev">
+                <md-option ng-repeat="dev_lst in mididev_lst" ng-value="dev_lst">
+                  {{dev_lst}}
+                </md-option>
+              </md-select>
+            </md-input-container>          
+          </div>
+          <div layout-gt-sm="row">
+            <md-button class="md-raised">Configure</md-button>
+            <span flex></span>
+            <label>Current client IP : {{formData.clientip}}</label>
+          </div>
+        </form>
+
+      </div>
+
+       <div ng-cloak>
+        <md-toolbar>
+          <div class="md-toolbar-tools">
+            <md-button class="md-icon-button" aria-label="Refresh" ng-click="refreshLogs()">
+              <md-icon md-svg-icon="img/icons/ic_refresh_24px.svg"></md-icon>
+            </md-button>        
+            <h2 class="md-flex">Logging</h2>
+            <span flex></span>
+            midi in : {{midiin}} midi out : {{midiout}} osc : {{osc}}
+          </div>
+        </md-toolbar>
+        <md-content flex="" layout-padding="column">
+          <pre>{{completeMsg}}</pre>
+        </md-content>
+      </div>
+    </md-content>
+  </md-content>
+
+</body>
+</html>

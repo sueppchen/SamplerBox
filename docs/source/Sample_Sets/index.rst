@@ -180,10 +180,9 @@ The way that volume is derived from the velocity.
 |%%velmode= |Description                                                                           |
 +===========+======================================================================================+
 |Sample     | | (Default) Volume equals the value in the sample, so it requires multiple           |
-|           | | samples using the %velocity parameter to get differentiation.                      |
+|           | | samples using the %velocity parameter to get differentiation (original SamplerBox).|
 +-----------+--------------------------------------------------------------------------------------+
-|Accurate   | | Played velocity influences volume directly. Multiple samples can still be used to  |
-|           | | differentiate timbre, but now they must be normalized.                             |
+|Accurate   | | "Playback": play sample from start to end ignoring standard note-off.              |
 +-----------+--------------------------------------------------------------------------------------+
 
 

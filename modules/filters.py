@@ -1,6 +1,6 @@
 import scipy.signal as scsig
 import numpy as np
-from designtools import zpk2sos
+from .designtools import zpk2sos
 from utility import sosfilter, sosfreqz
 
 # Typical IIR _filters found in parametric equalizers nowadays

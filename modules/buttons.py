@@ -1,4 +1,4 @@
-import globalvars as gv
+from . import globalvars as gv
 
 class Buttons():
 
@@ -20,16 +20,16 @@ class Buttons():
                             # print '-------\rChannel:%d Input value:%d' % (channel, GPIO.input(channel))
     
                             if channel == gv.BUTTON_LEFT_GPIO:
-                                print '\rLEFT GPIO button pressed'  # debug
+                                print('\rLEFT GPIO button pressed')  # debug
                                 gv.nav.state.left()
                             elif channel == gv.BUTTON_RIGHT_GPIO:
-                                print '\rRIGHT GPIO button pressed' # debug
+                                print('\rRIGHT GPIO button pressed') # debug
                                 gv.nav.state.right()
                             elif channel == gv.BUTTON_ENTER_GPIO:
-                                print '\rENTER GPIO button pressed' # debug
+                                print('\rENTER GPIO button pressed') # debug
                                 gv.nav.state.enter()
                             elif channel == gv.BUTTON_CANCEL_GPIO:
-                                print '\rCANCEL GPIO button pressed' # debug
+                                print('\rCANCEL GPIO button pressed') # debug
                                 gv.nav.state.cancel()
 
                     GPIO.setmode(GPIO.BCM)
@@ -81,11 +81,11 @@ class Buttons():
             if gv.USE_I2C_BUTTONS:
 
                 import smbus
-                INT_GPIO = 4
+                #INT_GPIO = 4
 
                 pcf8574 = smbus.SMBus(1)                                #bus anlegen
                 pcf8574.write_byte(gv.I2C_BUTTONS_ADDR,0xff)            #alle ausgaenge(pullups) an
-                print "--------> i2Cbuttons in Use"
+                print("--------> i2Cbuttons in Use")
                 self.buttondebug=""
 
                 def button_callback(channel):
@@ -139,12 +139,12 @@ class Buttons():
 
 
                 GPIO.setmode(GPIO.BCM)
-                GPIO.setup(INT_GPIO, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+                GPIO.setup(gv.I2C_BUTTONS_INT, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 
                 # BUTTON_MOM = 'momentary'
                 # BUTTON_TOG = 'toggle'
                 # button_mode = BUTTON_TOG
     
-                GPIO.add_event_detect(INT_GPIO, GPIO.BOTH, callback = button_callback, bouncetime=self.bouncetime)
+                GPIO.add_event_detect(gv.I2C_BUTTONS_INT, GPIO.BOTH, callback = button_callback, bouncetime=self.bouncetime)
 
 

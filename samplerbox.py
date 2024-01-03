@@ -22,6 +22,7 @@
 # MODULES
 #########################################
 
+
 #samplerbox.original
 from os.path import ismount
 from os.path import isfile
@@ -37,10 +38,10 @@ import rtmidi2
 # from filters import FilterType, Filter, FilterChain
 # from utility import byteToPCM, floatToPCM, pcmToFloat, sosfreqz
 
-print 'modules other'
+#print('modules other')
 
 from modules import globalvars as gv
-print 'import ok: gv'
+#print('import ok: gv')
 from modules import displayer
 from modules import audiocontrols
 from modules import buttons
@@ -52,7 +53,7 @@ from modules import midimaps
 from modules import midicallback
 from modules import midiserial
 
-print 'import done'
+#print('import done')
 
 #pilink
 import sys
@@ -94,7 +95,7 @@ try:
     subprocess.call(['systemctl', 'stop', 'serial-getty@ttyAMA0.service'])
     subprocess.call(['systemctl', 'disable', 'serial-getty@ttyAMA0.service'])
 except:
-    print 'Failed to stop MIDI serial'
+    print('Failed to stop MIDI serial')
     pass
 
 ###########
@@ -129,15 +130,15 @@ if isfile(samples_fs_resize_format_script):
     systemfunctions.mount_boot_rw()
     systemfunctions.mount_root_rw()
     system('sh ' + samples_fs_resize_format_script)
-    print 'Finished expanding. Reboot now.'
+    print('Finished expanding. Reboot now.')
     systemfunctions.SystemFunctions().reboot()
     exit()
 else:
-    print '\r\n***********\r\n/SAMPLES/ HAS BEEN GROWN AND FORMATTED - READY TO GO\r\n***********\r\n'
+    print('\r\n***********\r\n/SAMPLES/ HAS BEEN GROWN AND FORMATTED - READY TO GO\r\n***********\r\n')
 
-print '#### START SETLIST ####'
+print('#### START SETLIST ####')
 gv.setlist = setlist.Setlist()
-print '####  END SETLIST  ####\n'
+print('####  END SETLIST  ####\n')
 
 if gv.SYSTEM_MODE == 1:
     from modules import HD44780_sys_1
@@ -152,14 +153,40 @@ elif gv.SYSTEM_MODE == 2:
     gv.displayer.LCD_SYS = HD44780_sys_2.LCD_SYS_2()
     gv.nav = navigator_sys_2
 
+if gv.DEBUG :
+    print("DEBUG SB - midimaps")
 gv.midimaps = midimaps.MidiMapping().maps
+
+if gv.DEBUG :
+    print("DEBUG SB - autocorder")
 gv.autochorder = audiocontrols.AutoChorder()
+
+if gv.DEBUG :
+    print("DEBUG SB - audioControlls")
 gv.ac = audiocontrols.AudioControls()
+
+if gv.DEBUG :
+    print("DEBUG SB - startsound")
 gv.sound = sound.StartSound()
+
+if gv.DEBUG :
+    print("DEBUG SB - systemfuncs")
 gv.sysfunc = systemfunctions.SystemFunctions()
+
+if gv.DEBUG :
+    print("DEBUG SB - loadsamples")
 gv.ls = loadsamples.LoadingSamples()
+
+if gv.DEBUG :
+    print("DEBUG SB - buttons")
 bnt = buttons.Buttons()
+
+if gv.DEBUG :
+    print("DEBUG SB - midicallback")
 gv.midicallback = midicallback.Midi()
+
+if gv.DEBUG :
+    print("DEBUG SB - midiserial")
 gv.midiserial = midiserial.MIDISerial(midicallback=gv.midicallback)
 
 import modules.gui as gui
@@ -169,12 +196,16 @@ import modules.gui as gui
 # If running on Windows/Mac. Experimental #
 ###########################################
 
+if gv.DEBUG :
+    print("DEBUG SB - gui")
 if gv.USE_GUI and not gv.IS_DEBIAN: gv.gui = gui.SamplerBoxGUI()  # Start the GUI
 
 ################################
 # LOAD FIRST SAMPLE-SET/PRESET #
 ################################
 
+if gv.DEBUG :
+    print("DEBUG SB - load preset")
 gv.ls.load_preset()
 
 ################################################################
@@ -183,6 +214,8 @@ gv.ls.load_preset()
 # possible solution at http://www.samplerbox.org/forum/146     #
 ################################################################
 
+if gv.DEBUG :
+    print("DEBUG SB - midiserial-Start")
 gv.midiserial.start()
 
 #################################
@@ -191,7 +224,7 @@ gv.midiserial.start()
 
 time_end = time.time()
 time_total = float(time_end - time_start)
-print '\r\nINIT LOAD TIME: %d seconds (before sample loading)\r\n' % time_total
+print('\r\nINIT LOAD TIME: %d seconds (before sample loading)\r\n' % time_total)
 
 ##########################
 # MIDI DEVICES DETECTION #
@@ -220,7 +253,7 @@ try:
         while True:
     
             no_playing_sounds = False
-            for channel in xrange(16):
+            for channel in range(16):
                 if not gv.playingnotes[channel + 1]:
                     no_playing_sounds = True
     
@@ -231,7 +264,8 @@ try:
                 
                 #mit letzter Liste vergleichen, bei Abweichung einlesen
                 if (len(prev_ports) != len(curr_ports)):
-                    print '\n==== START GETTING MIDI DEVICES ===='
+                    if gv.DEBUG :
+                        print('\n==== START GETTING MIDI DEVICES ====')
                     midi_in.close_ports()
                     prev_ports = []
                     for port in curr_ports:
@@ -239,11 +273,13 @@ try:
                                         len(prev_ports) != len(curr_ports) and 'LoopBe Internal' not in port):
                             midi_in.open_ports(port)
                             midi_in.callback = gv.midicallback.callback
-                            if first_loop:
-                                print 'Opened MIDI port: ' + port
-                            else:
-                                print 'Reopening MIDI port: ' + port
-                    print '====  END GETTING MIDI DEVICES  ====\n'
+                            if gv.DEBUG:
+                                if first_loop:
+                                    print('Opened MIDI port: ' + port)
+                                else:
+                                    print('Reopening MIDI port: ' + port)
+                    if gv.DEBUG:
+                        print('====  END GETTING MIDI DEVICES  ====\n')
                 prev_ports = curr_ports
                 first_loop = False
             time.sleep(0.2)
@@ -271,11 +307,11 @@ try:
 
 
 except KeyboardInterrupt:
-    print "\nStopped by CTRL-C\n"
+    print("\nStopped by CTRL-C\n")
     gv.sysfunc.shutdown(log_file)
     exit()
 except:
-    print "\nStopped by other error\n"
+    print("\nStopped by other error\n")
     gv.sysfunc.shutdown(log_file)
     exit()
 

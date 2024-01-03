@@ -1,11 +1,11 @@
-import globalvars as gv
+from . import globalvars as gv
 from ctypes import *
 import ctypes
 from os.path import dirname, abspath
 from collections import OrderedDict
 import random
 if gv.USE_TONECONTROL:
-    from filters import FilterType, Filter, FilterChain
+    from .filters import FilterType, Filter, FilterChain
 
 class AudioControls(object):
     def __init__(self):
@@ -26,7 +26,7 @@ class AudioControls(object):
         gv.sustainplayingnotes = []
         gv.triggernotes = {}
 
-        for channel in xrange(16):
+        for channel in range(16):
             gv.triggernotes[channel + 1] = [128] * 128  # fill with unplayable note
             gv.playingnotes[channel + 1] = {}
 
@@ -95,11 +95,11 @@ class AudioControls(object):
 
         except:
             if gv.MIDI_CHANNEL != midichannel:
-                print 'Channel error: no samples are assigned to channel %d' % (midichannel)
+                print('Channel error: no samples are assigned to channel %d' % (midichannel))
                 gv.displayer.disp_change(str_override='CHANNEL ERROR', line=gv.LCD_ROWS - 1, timeout=1)
                 gv.displayer.disp_change(str_override='NoSamplesOn CH%d' % (midichannel), line=gv.LCD_ROWS, timeout=1)
             else:
-                print 'Note error: check definition'
+                print('Note error: check definition')
                 gv.displayer.disp_change(str_override='NOTE ERROR', line=gv.LCD_ROWS-1, timeout=1)
                 gv.displayer.disp_change(str_override='Check definition', line=gv.LCD_ROWS, timeout=1)
 
@@ -107,7 +107,7 @@ class AudioControls(object):
 
         midinote += gv.globaltranspose
         if gv.SYSTEM_MODE > 0:
-            for playnote in xrange(128):
+            for playnote in range(128):
                 if gv.triggernotes[midichannel][playnote] == midinote:  # did we make this one play ?
                     if playnote in gv.playingnotes[midichannel]:
                         for m in gv.playingnotes[midichannel][playnote]:

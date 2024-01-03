@@ -14,6 +14,7 @@
     limitations under the License.
 
 """
+import config
 
 activity = { 'midiin': 0, 'oscin' : 0, 'midiout' : 0 }
 messages = [ "pilink started." ]
@@ -36,7 +37,8 @@ def error(msg) :
 	messages.append("ERROR: " + str(msg))
 
 def log(msg) :
-	print "PILINK: " + msg
+	if config.DEBUG:
+	    print("PILINK: " + msg)
 	if len(messages) > 1024 :
 		messages.pop(0)
 	messages.append(msg)

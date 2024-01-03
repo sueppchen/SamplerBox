@@ -7,6 +7,7 @@ configdefaults = {
     'USE_BUTTONS': {'type': 'boolean', 'default': False, 'section': 'SAMPLERBOX CONFIG'},
     'USE_I2C_BUTTONS': {'type': 'boolean', 'default': True, 'section': 'SAMPLERBOX CONFIG'},
     'I2C_BUTTONS_ADDR': {'type': 'range', 'min': 0, 'max': 128, 'default': 32, 'section': 'SAMPLERBOX CONFIG'},
+    'I2C_BUTTONS_INT': {'type': 'range', 'min': 0, 'max': 40, 'default': 4, 'section': 'SAMPLERBOX CONFIG'},
     'USE_HD44780_16X2_LCD': {'type': 'boolean', 'default': False, 'section': 'SAMPLERBOX CONFIG'},
     'USE_I2C_16X2DISPLAY': {'type': 'boolean', 'default': True, 'section': 'SAMPLERBOX CONFIG'},
     'I2C_16x2DISPLAY_ADDR': {'type': 'range', 'min': 0, 'max': 128, 'default': 63, 'section': 'SAMPLERBOX CONFIG'},
@@ -25,6 +26,7 @@ configdefaults = {
     'USE_GUI': {'type': 'boolean', 'default': False, 'section': 'SAMPLERBOX CONFIG'},
     'INVERT_SUSTAIN': {'type': 'boolean', 'default': True, 'section': 'SAMPLERBOX CONFIG'},
 
+    'DEBUG': {'type': 'boolean', 'default': False, 'section': 'MISC'},
     'PRINT_MIDI_MESSAGES': {'type': 'boolean', 'default': True, 'section': 'MISC'},
     'PRINT_LCD_MESSAGES': {'type': 'boolean', 'default': True, 'section': 'MISC'},
 
@@ -60,10 +62,10 @@ configdefaults = {
 }
 
 if __name__ == "__main__":
-    import configparser_samplerbox
+    from . import configparser_samplerbox
 
     cp = configparser_samplerbox.Setup('../config.ini')
 
-    for c in configdefaults.iteritems():
+    for c in configdefaults.items():
 
         cp.update_config(section=c[1].get('section'), option=c[0], value=c[1].get('default'))

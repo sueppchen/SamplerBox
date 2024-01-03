@@ -1,6 +1,6 @@
 import threading
 import time
-import globalvars as gv
+from . import globalvars as gv
 
 class TextScroller:
     def __init__(self):

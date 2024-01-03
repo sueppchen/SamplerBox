@@ -1,11 +1,11 @@
-from Tkinter import *
-import configdefaultsdict
-import configparser_samplerbox as cp
+from tk import *
+from . import configdefaultsdict
+from . import configparser_samplerbox as cp
 from functools import partial
 import sounddevice
 from time import sleep
-import audiocontrols
-import globalvars as gv
+from . import audiocontrols
+from . import globalvars as gv
 
 
 class SamplerBoxGUI():
@@ -13,7 +13,7 @@ class SamplerBoxGUI():
 
         self.is_main = False
         if __name__ != "__main__":
-            import globalvars as gv
+            from . import globalvars as gv
             self.is_main = True
 
 
@@ -187,11 +187,11 @@ class GlobalConfigFrame(object):
         for row in range(rows):
             current_row = []
             option_name = options_order[row]
-            if cd.has_key(option_name):
+            if option_name in cd:
 
                 type = cd.get(option_name).get('type')
 
-                for column in xrange(columns):
+                for column in range(columns):
 
                     if column == 0:
                         label_text = option_name.replace('_', ' ').title()
@@ -215,14 +215,14 @@ class GlobalConfigFrame(object):
                             current_option_index = OPTIONS.index(option_value)
                             variable = StringVar(settings_table)
                             variable.set(OPTIONS[current_option_index])  # default value
-                            input = apply(OptionMenu, (settings_table, variable) + tuple(OPTIONS))
+                            input = OptionMenu(*(settings_table, variable) + tuple(OPTIONS))
                         elif type == 'options':
                             OPTIONS = cd.get(option_name).get('options')
                             option_value = str(cp.get_option_by_name(option_name))
                             current_option_index = OPTIONS.index(option_value)
                             variable = StringVar(settings_table)
                             variable.set(OPTIONS[current_option_index])  # default value
-                            input = apply(OptionMenu, (settings_table, variable) + tuple(OPTIONS))
+                            input = OptionMenu(*(settings_table, variable) + tuple(OPTIONS))
                         elif type == 'midi':
                             input = Label(settings_table, text=str(cp.get_option_by_name(option_name)), borderwidth=0)
                             input.config(justify=LEFT, state=DISABLED)
@@ -252,7 +252,7 @@ class GlobalConfigFrame(object):
 
                 self._widgets.append(current_row)
 
-        for column in xrange(columns):
+        for column in range(columns):
             settings_table.grid_columnconfigure(column, weight=1)
 
     def save_option(self, section, option, row):

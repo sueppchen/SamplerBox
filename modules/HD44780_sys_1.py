@@ -2,11 +2,11 @@
 # HD44780 16x2 LCD MESSAGES
 ###########################
 
-import globalvars as gv
+from . import globalvars as gv
 import sys
 import time
 import threading
-import lcdcustomchars as lcdcc
+from . import lcdcustomchars as lcdcc
 #i2c
 #import smbus
 
@@ -70,7 +70,7 @@ class LCD_SYS_1:
                 self.lcd.cursor_mode = 'hide'
 
                 # Fill the display with blank spaces
-                for i in xrange(1, gv.LCD_ROWS+1):
+                for i in range(1, gv.LCD_ROWS+1):
                     self.lcd_string(' ', i)
 
                 # Write custom codes to the LCD

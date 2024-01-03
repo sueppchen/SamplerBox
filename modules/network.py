@@ -143,7 +143,7 @@ class PasswordInputer(SSIDSelector):
 
             if len(self.psk) >= 8 and len(self.psk) < 64:
 
-                print self.selected_ssid, self.psk,'<<<<'
+                print(self.selected_ssid, self.psk,'<<<<')
 
                 self.save(ssid=self.selected_ssid, psk=self.psk)
 
@@ -151,7 +151,7 @@ class PasswordInputer(SSIDSelector):
 
             else:
 
-                print 'Password is not long enough. Must be 8...63 characters'
+                print('Password is not long enough. Must be 8...63 characters')
 
 
 
@@ -181,26 +181,26 @@ class PasswordInputer(SSIDSelector):
 
 if __name__ == '__main__':
 
-    print '----START TESTING WIFI----'
+    print('----START TESTING WIFI----')
 
     w = Wifi()
-    print w.ssids
+    print(w.ssids)
 
     ss = SSIDSelector(w.ssids)
 
-    print 'init SSID:',ss.get_selected_ssid_name()
+    print('init SSID:',ss.get_selected_ssid_name())
 
     ss.next_ssid()
     ss.next_ssid()
     ss.next_ssid()
 
-    print 'selected SSID:', ss.get_selected_ssid_name()
+    print('selected SSID:', ss.get_selected_ssid_name())
 
     pi = PasswordInputer(ss.get_selected_ssid_name())
 
     pi.get_next_char()
     pi.get_next_char()
-    print pi.enter()
+    print(pi.enter())
     pi.get_next_char()
     pi.get_next_char()
     pi.get_next_char()
@@ -211,21 +211,18 @@ if __name__ == '__main__':
     pi.get_next_char()
     pi.get_next_char()
     pi.get_next_char()
-    print pi.enter()
+    print(pi.enter())
     pi.get_next_char()
     pi.get_next_char()
-    print pi.enter()
-    pi.get_next_char()
-    pi.get_next_char()
-    pi.get_next_char()
-    pi.get_next_char()
-    print pi.enter()
-    pi.get_next_char()
-    pi.get_next_char()
-    print pi.enter()
+    print(pi.enter())
     pi.get_next_char()
     pi.get_next_char()
     pi.get_next_char()
+    pi.get_next_char()
+    print(pi.enter())
+    pi.get_next_char()
+    pi.get_next_char()
+    print(pi.enter())
     pi.get_next_char()
     pi.get_next_char()
     pi.get_next_char()
@@ -233,18 +230,21 @@ if __name__ == '__main__':
     pi.get_next_char()
     pi.get_next_char()
     pi.get_next_char()
-    print pi.enter()
-    pi.get_next_char()
-    pi.get_next_char()
-    print pi.enter()
     pi.get_next_char()
     pi.get_next_char()
     pi.get_next_char()
+    print(pi.enter())
     pi.get_next_char()
     pi.get_next_char()
-    print pi.enter()
+    print(pi.enter())
+    pi.get_next_char()
+    pi.get_next_char()
+    pi.get_next_char()
+    pi.get_next_char()
+    pi.get_next_char()
+    print(pi.enter())
 
-    print pi.enter()
+    print(pi.enter())
 
 else:
-    import systemfunctions as sysfunc
+    from . import systemfunctions as sysfunc
