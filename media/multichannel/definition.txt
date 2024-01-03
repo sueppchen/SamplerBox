@@ -1,0 +1,6 @@
+%%fillnotes=Y
+%%velmode=Accurate
+%%mode=Keyb
+%%gain=1.0
+01_saw_%midinote.wav,%channel=1,%mode=Once,%fillnotes=Y
+16_chick_%midinote*.wav,%channel=16,%mode=Once,%fillnotes=Y
